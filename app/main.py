@@ -1,10 +1,15 @@
 import sys, time
 from pathlib import Path
-import numpy as np, pandas as pd, folium, streamlit as st
-from streamlit_folium import st_folium
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+import time
+import numpy as np, pandas as pd, folium, streamlit as st
+from streamlit_folium import st_folium
+from app.components.diagnostics import fan_chart, shap_chart
+
 from src.advisory.rule_engine import STAGES, get_advisory, band
+from src.advisory.glossary import GLOSSARY
 
 st.set_page_config(layout="wide", page_title="AgriCast")
 st.markdown(
@@ -37,6 +42,9 @@ horizon = st.sidebar.radio("Horizon (days)", [14, 28])
 date = st.sidebar.selectbox(
     "Forecast date (backtest)", sorted(df.forecast_date.unique())
 )
+with st.sidebar.expander("What do these terms mean?"):
+    for term, meaning in GLOSSARY.items():
+        st.markdown(f"**{term}**  \n{meaning}")
 
 view = df[(df.horizon_days == horizon) & (df.forecast_date == date)].reset_index(
     drop=True
@@ -62,6 +70,16 @@ with left:
             fill_color=BAND_COLOR[band(r.vulnerability_score_0_100)],
             fill_opacity=0.85,
         ).add_to(m)
+    legend = """
+    <div style="position: fixed; bottom: 24px; left: 24px; z-index: 9999;
+                background: #fafaf7; padding: 8px 12px; font-size: 13px;
+                line-height: 1.6; color: #1f2a24;">
+    <b>Drought risk</b><br>
+    <span style="color:#2f8f5b;">&#9679;</span> Low (0 to 35)<br>
+    <span style="color:#d99a1e;">&#9679;</span> Moderate (36 to 69)<br>
+    <span style="color:#c0392b;">&#9679;</span> High (70 to 100)
+    </div>"""
+    m.get_root().html.add_child(folium.Element(legend))
     out = st_folium(m, height=520, returned_objects=["last_clicked"])
 
 with right:
@@ -71,17 +89,18 @@ with right:
         i = np.argmin((view.lat - click["lat"]) ** 2 + (view.lon - click["lng"]) ** 2)
         r = view.iloc[i]
         ms = (time.perf_counter() - t0) * 1000
+
         st.subheader(names.get(r.grid_id, r.grid_id))
         st.caption(f"Grid cell {r.grid_id}")
+
         c1, c2 = st.columns(2)
-        c1.metric("Vulnerability", f"{r.vulnerability_score_0_100:.0f} / 100")
-        c2.metric(
-            "VCI forecast",
-            f"{r.vci_q50:.0f}",
-            f"{r.vci_q10:.0f} to {r.vci_q90:.0f}",
-            delta_color="off",
-        )
+        c1.metric("Drought risk score", f"{r.vulnerability_score_0_100:.0f} / 100")
+        c2.metric("Crop health outlook (VCI)", f"{r.vci_q50:.0f}", f"range {r.vci_q10:.0f} to {r.vci_q90:.0f}", delta_color="off")
+
+        cell = df[(df.grid_id == r.grid_id) & (df.forecast_date == date)].sort_values("horizon_days")
+        st.plotly_chart(fan_chart(cell))
         st.write(f"Top driver: {r.shap_top1_feature}")
+
         adv = get_advisory(
             crop,
             stage,
@@ -90,12 +109,14 @@ with right:
             r.shap_top1_feature,
             r.grid_id,
         )
+
         st.write(f"Risk: {adv['band']}")
         st.write(adv["advice"])
         if adv["draft"]:
             st.caption("Draft advice, pending agronomist review.")
         st.code(adv["sms"], language=None)
 
+        st.plotly_chart(shap_chart(r), key="shap")
         st.caption(f"Lookup time: {ms:.1f} ms. Backtest date, precomputed forecast.")
     else:
         st.write("Click the map to look up a cell.")
