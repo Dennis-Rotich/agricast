@@ -1,10 +1,10 @@
 {
-  "rf_baseline_t14": {
-    "rmse_normalized": 0.0327,
-    "rmse_0_100_scale": 3.27,
-    "r2_score": 0.9874,
-    "drought_recall_vci35": 0.9594,
-    "lookup_latency_ms": 0.387,
+  "rf_baseline_vci_t14": {
+    "rmse_normalized": 0.0646,
+    "rmse_0_100_scale": 6.46,
+    "r2_score": 0.932,
+    "drought_recall_vci35": 0.8532,
+    "lookup_latency_ms": 0.487,
     "targets_met": {
       "rmse_below_0_08": true,
       "r2_above_0_82": true,
@@ -12,13 +12,26 @@
       "latency_below_400ms": true
     }
   },
-  "lgbm": {
-    "t14": {
-      "rmse_normalized": 0.0322,
-      "rmse_0_100_scale": 3.22,
-      "r2_score": 0.9878,
-      "drought_recall_vci35": 0.9932,
-      "lookup_latency_ms": 0.356,
+  "lgbm_base_10_features_vci_t14": {
+    "rmse_normalized": 0.1268,
+    "rmse_0_100_scale": 12.68,
+    "r2_score": 0.7382,
+    "drought_recall_vci35": 0.8,
+    "lookup_latency_ms": 0.427,
+    "targets_met": {
+      "rmse_below_0_08": false,
+      "r2_above_0_82": false,
+      "recall_above_0_85": false,
+      "latency_below_400ms": true
+    }
+  },
+  "lgbm_day3_15_features": {
+    "vci_t14": {
+      "rmse_normalized": 0.0778,
+      "rmse_0_100_scale": 7.78,
+      "r2_score": 0.9015,
+      "drought_recall_vci35": 0.9742,
+      "lookup_latency_ms": 1.324,
       "targets_met": {
         "rmse_below_0_08": true,
         "r2_above_0_82": true,
@@ -26,18 +39,37 @@
         "latency_below_400ms": true
       }
     },
-    "t28": {
-      "rmse_normalized": 0.0395,
-      "rmse_0_100_scale": 3.95,
-      "r2_score": 0.9797,
-      "drought_recall_vci35": 0.9913,
-      "lookup_latency_ms": 0.364,
+    "vci_t28": {
+      "rmse_normalized": 0.1617,
+      "rmse_0_100_scale": 16.17,
+      "r2_score": 0.5318,
+      "drought_recall_vci35": 0.9303,
+      "lookup_latency_ms": 0.529,
       "targets_met": {
-        "rmse_below_0_08": true,
-        "r2_above_0_82": true,
+        "rmse_below_0_08": false,
+        "r2_above_0_82": false,
         "recall_above_0_85": true,
         "latency_below_400ms": true
       }
-    }
-  }
+    },
+    "swdi_t14_rmse": 0.1102,
+    "swdi_t28_rmse": 0.1249
+  },
+  "feature_columns": [
+    "ndvi",
+    "ndre",
+    "spei_14",
+    "spei_30",
+    "gdd_cum",
+    "vpd",
+    "esi",
+    "awc_0_30cm",
+    "sand_clay_ratio",
+    "soc_0_30cm",
+    "ndvi_lag7",
+    "ndre_lag7",
+    "delta_ndre_14d",
+    "spei_30_lag7",
+    "spei30_x_awc"
+  ]
 }
