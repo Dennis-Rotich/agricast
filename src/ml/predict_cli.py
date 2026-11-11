@@ -19,9 +19,10 @@ import joblib
 import numpy as np
 import pandas as pd
 
-ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, "..", ".."))
+sys.path.insert(0, THIS_DIR)
 sys.path.insert(0, ROOT_DIR)
-sys.path.insert(0, os.path.join(ROOT_DIR, "src", "ml"))
 
 from train_telemetry import FEATURE_COLS, engineer_features, load_corridor_telemetry
 

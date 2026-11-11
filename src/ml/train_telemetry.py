@@ -15,8 +15,9 @@ except OSError:
     from sklearn.ensemble import HistGradientBoostingRegressor
     HAS_LGBM = False
 
-ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, ROOT_DIR)
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+ROOT_DIR = os.path.abspath(os.path.join(THIS_DIR, "..", ".."))
+sys.path.insert(0, THIS_DIR)
 
 from split_and_baseline import (
     FEATURE_COLS as BASE_FEATURE_COLS,

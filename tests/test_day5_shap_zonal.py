@@ -3,7 +3,7 @@ import os
 import sys
 import pandas as pd
 
-ROOT_DIR = "/home/dennis/agricast"
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 sys.path.insert(0, ROOT_DIR)
 sys.path.insert(0, os.path.join(ROOT_DIR, "src", "ml"))
