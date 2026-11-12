@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src.advisory.rule_engine import get_advisory
+from src.advisory.rule_engine import get_advisory, risk_driver
 from src.advisory.ussd_flow import DIAL_CODE, MENU, new_session, step
 
 
@@ -11,7 +11,7 @@ def render(view, names, crop, stage, horizon):
     def advise(plot, c, s):
         r = lookup.loc[plot]
         return get_advisory(c, s, r.vulnerability_score_0_100, horizon,
-                            r.shap_top1_feature, plot)["sms"]
+                            riskdriver(r), plot)["sms"]
 
     left, right = st.columns(2)
 

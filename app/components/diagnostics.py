@@ -1,5 +1,6 @@
 import plotly.graph_objects as go
-from src.advisory.rule_engine import DRIVER_TEXT
+from src.advisory.rule_engine import CHART_LABEL
+
 
 def fan_chart(cell):
     """cell: the two rows (14d and 28d) for one grid cell and forecast date."""
@@ -12,6 +13,10 @@ def fan_chart(cell):
                              name="Likely range"))
     fig.add_trace(go.Scatter(x=x, y=cell.vci_q50, mode="lines+markers",
                              line=dict(color="#2f6f4e"), name="Most likely value"))
+    if "vci_actual" in cell and cell.vci_actual.notna().any():
+        fig.add_trace(go.Scatter(x=x, y=cell.vci_actual, mode="markers",
+                                 marker=dict(color="#1f2a24", size=9, symbol="diamond"),
+                                 name="What actually happened"))
     fig.add_hline(y=35, line_dash="dash", line_color="#c0392b",
                   annotation_text="Drought stress line (VCI 35)")
     fig.update_layout(
@@ -22,8 +27,9 @@ def fan_chart(cell):
     )
     return fig
 
+
 def shap_chart(row):
-    items = [(DRIVER_TEXT.get(row[f"shap_top{k}_feature"], row[f"shap_top{k}_feature"]),
+    items = [(CHART_LABEL.get(row[f"shap_top{k}_feature"], row[f"shap_top{k}_feature"]),
               row[f"shap_top{k}_val"]) for k in (1, 2, 3)]
     items.reverse()  # plotly draws the first bar at the bottom
     labels = [n for n, _ in items]
@@ -34,8 +40,8 @@ def shap_chart(row):
         text=[f"{v:+.1f}" for v in vals], textposition="outside",
     ))
     fig.update_layout(
-        title=dict(text="Top 3 drivers of this forecast", font=dict(size=14)),
-        xaxis=dict(title="Contribution (points)", zeroline=True),
+        title=dict(text="What is driving this forecast", font=dict(size=14)),
+        xaxis=dict(title="Effect on risk (VCI points)", zeroline=True),
         height=220, margin=dict(l=0, r=30, t=40, b=0),
     )
     return fig
