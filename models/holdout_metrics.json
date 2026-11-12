@@ -1,0 +1,77 @@
+{
+  "tune_window": [
+    "2025-04-08",
+    "2025-08-01"
+  ],
+  "test_window": [
+    "2025-09-04",
+    "2025-10-04"
+  ],
+  "test_rows": 652,
+  "best_params": {
+    "num_leaves": 52,
+    "max_depth": 7,
+    "learning_rate": 0.054973209483019154,
+    "min_child_samples": 100,
+    "subsample": 0.698677412079517,
+    "colsample_bytree": 0.7384935414278013
+  },
+  "results": {
+    "14": {
+      "persistence": {
+        "rmse_vci_points": 11.81,
+        "r2": 0.709,
+        "drought_recall": 0.607,
+        "drought_precision": 0.651
+      },
+      "committed_model": {
+        "rmse_vci_points": 7.79,
+        "r2": 0.874,
+        "drought_recall": 0.978,
+        "drought_precision": 0.569
+      },
+      "retuned_q10_lt_35": {
+        "rmse_vci_points": 7.12,
+        "r2": 0.894,
+        "drought_recall": 0.989,
+        "drought_precision": 0.603
+      },
+      "retuned_q10_fitted": {
+        "rmse_vci_points": 7.12,
+        "r2": 0.894,
+        "drought_recall": 0.933,
+        "drought_precision": 0.697,
+        "threshold": 30.0
+      },
+      "share_below_35": 0.137
+    },
+    "28": {
+      "persistence": {
+        "rmse_vci_points": 20.46,
+        "r2": 0.254,
+        "drought_recall": 0.376,
+        "drought_precision": 0.458
+      },
+      "committed_model": {
+        "rmse_vci_points": 15.54,
+        "r2": 0.57,
+        "drought_recall": 1.0,
+        "drought_precision": 0.412
+      },
+      "retuned_q10_lt_35": {
+        "rmse_vci_points": 14.6,
+        "r2": 0.62,
+        "drought_recall": 0.95,
+        "drought_precision": 0.44
+      },
+      "retuned_q10_fitted": {
+        "rmse_vci_points": 14.6,
+        "r2": 0.62,
+        "drought_recall": 0.871,
+        "drought_precision": 0.518,
+        "threshold": 30.8
+      },
+      "share_below_35": 0.155
+    }
+  }
+}
