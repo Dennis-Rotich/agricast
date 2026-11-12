@@ -12,7 +12,7 @@ import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
 
-from app.components import scorecard, sms_sim
+from app.components import live_weather, score_card, sms_sim
 from app.components.diagnostics import fan_chart, shap_chart
 from src.advisory.glossary import GLOSSARY
 from src.advisory.rule_engine import STAGES, band, get_advisory, risk_driver
@@ -96,8 +96,8 @@ with st.sidebar.expander("What do these terms mean?"):
 
 view = df[(df.horizon_days == horizon) & (df.view_date == date)].reset_index(drop=True)
 
-tab_map, tab_sim, tab_score = st.tabs(
-    ["Map and forecast", "SMS and USSD simulator", "Model scorecard"])
+tab_map, tab_live, tab_sim, tab_score = st.tabs(
+    ["Map and forecast", "Live weather", "SMS and USSD simulator", "Model scorecard"])
 
 # ---- map and forecast ----
 with tab_map:
@@ -131,6 +131,8 @@ with tab_map:
             i = np.argmin((view.lat - click["lat"]) ** 2 + (view.lon - click["lng"]) ** 2)
             r = view.iloc[i]
             ms = (time.perf_counter() - t0) * 1000
+            st.session_state["live_cell"] = {"name": names.get(r.grid_id, r.grid_id),
+                                             "lat": float(r.lat), "lon": float(r.lon)}
 
             st.subheader(names.get(r.grid_id, r.grid_id))
             st.caption(f"Grid cell {r.grid_id}. Forecast issued {r.issue_date:%d %b %Y}, "
@@ -164,10 +166,14 @@ with tab_map:
         else:
             st.write("Click the map to look up a cell.")
 
+# ---- live weather ----
+with tab_live:
+    live_weather.render(st.session_state.get("live_cell"))
+
 # ---- SMS and USSD simulator ----
 with tab_sim:
     sms_sim.render(view, names, crop, stage, horizon)
 
 # ---- model scorecard ----
 with tab_score:
-    scorecard.render(ROOT)
+    score_card.render(ROOT)
