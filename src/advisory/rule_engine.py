@@ -10,20 +10,48 @@ STAGES = {
 }
 
 CROP_SHORT = {"Maize": "Maize", "Common Beans": "Beans", "Sorghum / Millet": "Sorghum"}
+
 STAGE_SHORT = {
     "Vegetative (V4-V8)": "V4-V8",
     "Tasseling / Silking": "Silking",
     "Pre-Flowering": "Pre-flower",
     "Grain Filling": "Grain fill",
 }
-DRIVER_TEXT = {
+
+DRIVER_TEXT = {  # short phrases for SMS: describe a cause of stress
     "spei_30": "30d rain deficit",
     "spei_14": "14d rain deficit",
+    "spei_30_lag7": "recent rain deficit",
+    "spei30_x_awc": "rain and soil",
     "ndre": "crop stress signal",
+    "ndre_lag7": "crop stress signal",
+    "delta_ndre_14d": "crop health falling",
     "ndvi": "low greenness",
+    "ndvi_lag7": "low greenness",
     "vpd": "dry air",
     "esi": "low soil moisture",
     "gdd_cum": "heat",
+    "awc_0_30cm": "low soil water",
+    "sand_clay_ratio": "sandy soil",
+    "soc_0_30cm": "low soil carbon",
+}
+
+CHART_LABEL = {  # neutral names for the chart: the bar colour says if it raises or lowers risk
+    "spei_30": "30-day rain balance",
+    "spei_14": "14-day rain balance",
+    "spei_30_lag7": "Rain balance last week",
+    "spei30_x_awc": "Rain balance and soil",
+    "ndre": "Crop stress signal",
+    "ndre_lag7": "Crop stress signal last week",
+    "delta_ndre_14d": "Change in crop stress signal",
+    "ndvi": "Greenness",
+    "ndvi_lag7": "Greenness last week",
+    "vpd": "Dryness of air",
+    "esi": "Soil moisture stress",
+    "gdd_cum": "Heat build-up",
+    "awc_0_30cm": "Soil water storage",
+    "sand_clay_ratio": "Soil texture",
+    "soc_0_30cm": "Soil carbon",
 }
 
 # (crop, stage, band) -> (full advice, short SMS action)
@@ -97,9 +125,19 @@ def get_advisory(crop, stage, score, horizon_days=14, driver=None, plot_id="PLOT
 
 
 def build_sms(plot_id, crop, stage, score, horizon_days, driver, action):
-    drv = DRIVER_TEXT.get(driver, "weather stress")
-    return (
+    msg = (
         f"AGRICAST [{plot_id}] {CROP_SHORT.get(crop, crop)} "
         f"{STAGE_SHORT.get(stage, stage)}: {horizon_days}d drought risk "
-        f"{band(score).upper()} ({score:.0f}/100). {action} Driver: {drv}."
+        f"{band(score).upper()} ({score:.0f}/100). {action}"
     )
+    if driver and band(score) != "low":
+        msg += f" Driver: {DRIVER_TEXT.get(driver, 'weather stress')}."
+    return msg
+
+
+def risk_driver(row):
+    """First of the top 3 SHAP drivers that RAISES risk (positive value), else None."""
+    for k in (1, 2, 3):
+        if row[f"shap_top{k}_val"] > 0:
+            return row[f"shap_top{k}_feature"]
+    return None
